@@ -38,4 +38,35 @@ struct io {
     void (*free)(struct io ** io_ptr);
 };
 
+// TODO TAD
+struct cpu {
+    uint8_t v[NUM_GPR];
+    uint16_t i;
+    uint16_t pc;
+    uint8_t sp;
+    uint8_t dt;
+    uint8_t st;
+};
+
+struct chip8 {
+    struct cpu cpu;
+    uint8_t mem[MEM_SIZE];
+    uint16_t stack[STACK_SIZE];
+    char pixels[N_LINES][N_COLS];
+    uint8_t keyboard[N_KEYS];
+    struct timespec begin, end;
+};
+
+void chip8_free(struct chip8 ** chip);
+
+struct chip8 * chip8_alloc(void);
+
+int chip8_load_rom(struct chip8 * chip, char const * path);
+
+uint16_t chip8_decode_it(struct chip8 * chip);
+
+int chip8_execute(struct chip8 * chip, uint16_t it);
+
+int chip8_update_timers(struct chip8 * chip);
+
 #endif
