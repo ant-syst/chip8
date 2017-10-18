@@ -451,7 +451,7 @@ REGISTER_TEST(Dxyn_1)
 /* Test draw with overlap with unset pixels */
 REGISTER_TEST(Dxyn_2)
 {
-    int x, y;
+    int x, y1, y2;
     char pixels[N_LINES][N_COLS] = {0};
     char sprite_init[][8] = {
         {1, 1, 0, 1, 1, 0, 1, 1},
@@ -460,30 +460,36 @@ REGISTER_TEST(Dxyn_2)
         {1, 0, 0, 0, 0, 0, 0, 0},
     };
 
-    char sprite_res[][8] = {
+    char sprite_res_1[][8] = {
         {0, 1, 0, 1, 1, 0, 1, 1},
         {1, 1, 1, 1, 1, 0, 0, 1},
         {1, 1, 1, 1, 1, 1, 1, 1},
         {1, 0, 0, 0, 0, 0, 0, 0},
     };
 
-    x = 5;
-    y = 6;
+    char sprite_res_2[][8] = {
+        {1, 0, 0, 0, 0, 0, 0, 0},
+    };
 
+    x = 5;
+    y1 = 6;
+    y2 = 12;
+
+    // 1er part
     if(!copy_matrix(&chip->pixels[0][0], N_LINES, N_COLS,
-                     &sprite_init[0][0], x, y,
+                     &sprite_init[0][0], x, y1,
                      NUM_ROWS(sprite_init), NUM_COLS(sprite_init)))
         THROW("copy_matrix", error, 0);
 
     if(!copy_matrix(&pixels[0][0], N_LINES, N_COLS,
-                     &sprite_res[0][0], x, y,
-                     NUM_ROWS(sprite_res), NUM_COLS(sprite_res)))
+                     &sprite_res_1[0][0], x, y1,
+                     NUM_ROWS(sprite_res_1), NUM_COLS(sprite_res_1)))
         THROW("copy_matrix", error, 0);
 
     chip->cpu.i = MEM_START;
     chip->mem[chip->cpu.i] = 0b10000000;
     chip->cpu.v[0xa] = x;
-    chip->cpu.v[0xb] = y;
+    chip->cpu.v[0xb] = y1;
 
     if(!chip8_execute(chip, 0xDab1))
         return 0;
@@ -493,6 +499,23 @@ REGISTER_TEST(Dxyn_2)
 
     if(!cmp_matrix(&chip->pixels[0][0], &pixels[0][0], N_LINES, N_COLS))
         THROW("cmp_matrix", error, 0);
+
+    // 2eme part
+    if(!copy_matrix(&pixels[0][0], N_LINES, N_COLS,
+                     &sprite_res_2[0][0], x, y2,
+                     NUM_ROWS(sprite_res_2), NUM_COLS(sprite_res_2)))
+        THROW("copy_matrix", error, 0);
+
+    chip->cpu.v[0xa] = x;
+    chip->cpu.v[0xb] = y2;
+    chip->mem[chip->cpu.i + 10] = 0b10000000;
+
+    if(!chip8_execute(chip, 0xDab1))
+        return 0;
+
+    // Test if Vf has been reset to 0
+    if(chip->cpu.v[0xf] != 0)
+        THROW("chip->cpu.v[0xf] != 0", error, 0);
 
     return 1;
 

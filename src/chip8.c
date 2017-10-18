@@ -509,6 +509,8 @@ int chip8_execute(struct chip8 * chip, uint16_t it)
                 THROW2(error, 0, "check_mem_index %d:%d",
                         chip->cpu.i, chip->cpu.i + n);
 
+            chip->cpu.v[0xF] = 0;
+
             for(row=0; row<n; row++)
             {
                 int y = (vy + row) % N_LINES;
