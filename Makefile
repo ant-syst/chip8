@@ -1,6 +1,6 @@
 FLAGS=-Wall -g -Wextra
 
-all: bin/chip8_test.elf bin/sdl_io.elf bin/main.elf bin/disassemble.elf
+all: bin/chip8_test.elf bin/sdl_io.elf bin/main.elf bin/disassemble.elf bin/disassemble.elf
 
 bin/main.elf: src/chip8.c src/main.c src/sdl_io.c src/debugger.c src/*.h
 	gcc $(FLAGS) -lSDL2 -lrt src/chip8.c src/main.c src/sdl_io.c src/debugger.c src/tools.c -o bin/main.elf
@@ -12,8 +12,8 @@ bin/sdl_io.elf: src/chip8.c src/sdl_io.c src/tools.c src/*.h
 	gcc $(FLAGS) -lSDL2 -DTEST src/chip8.c src/sdl_io.c src/tools.c -o bin/sdl_io.elf
 
 bin/disassemble.elf: src/disassemble.c
-	gcc $(FLAGS) src/disassemble.c -o bin/disassemble.elf
-	
+	gcc $(FLAGS) src/disassemble.c src/disassembler.c -o bin/disassemble.elf
+
 clean:
 	rm bin/*
 
