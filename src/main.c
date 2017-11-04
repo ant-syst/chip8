@@ -116,44 +116,44 @@ int main(int argc, char ** argv)
     struct chip8 * chip = NULL;
     char const * rom = NULL;
     int pix_size = 10;
-    
+
     rom = parse_str(argc, argv, "--rom", NULL);
     if(!rom)
     {
         printf("Usage: %s --rom <rom file>\n", argv[0]);
         goto error;
     }
-    
+
     chip = chip8_alloc();
     if(!chip)
         THROW("chip8_alloc", error, 0);
-    
+
     io_ptr = sdl_alloc(N_COLS * pix_size, N_LINES * pix_size, &key_mapping, 10, 10);
     if(!io_ptr)
         THROW("sdl_alloc", error, 0);
-    
+
     dbg = dbg_alloc(chip);
     if(!dbg)
         THROW("dbg_alloc", error, 0);
-    
+
     if(!chip8_load_rom(chip, rom))
         THROW("chip8_load_rom", error, 0);
-    
+
     if(!run(chip, io_ptr, dbg))
         THROW("run", error, 0);
-    
+
     io_ptr->free(&io_ptr);
     chip8_free(&chip);
     dbg_free(&dbg);
-    
+
     return EXIT_SUCCESS;
-    
+
     error:
-    
+
     if(io_ptr)
         io_ptr->free(&io_ptr);
     chip8_free(&chip);
     dbg_free(&dbg);
-    
+
     return EXIT_FAILURE;
 }
