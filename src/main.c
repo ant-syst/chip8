@@ -2,6 +2,7 @@
 #include "tools.h"
 #include "sdl_io.h"
 #include "debugger.h"
+#include "args.h"
 
 #include <stdlib.h>
 #include <time.h>
@@ -57,28 +58,6 @@ static enum chip8_key key_mapping(int key)
         default:
             return IO_KEY_NOT_FOUND;
     }
-}
-
-static int parse_name(int argc, char ** argv, char const *name)
-{
-    int i;
-    
-    for(i=1; i<argc; i++)
-        if(strcmp(name, argv[i]) == 0)
-            return 0;
-    
-    return 1;
-}
-
-static char const * parse_str(int argc, char ** argv, char const *name, char const *def)
-{
-    int i;
-    
-    for(i=1; i<argc-1; i++)
-        if(strcmp(name, argv[i]) == 0)
-            return argv[i + 1];
-    
-    return def;
 }
 
 static int run(struct chip8 * chip, struct io * io_ptr, struct debugger * dbg)
