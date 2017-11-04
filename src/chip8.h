@@ -6,7 +6,7 @@
 
 #define NUM_GPR 16
 #define FONTS_START 0x0
- 
+
 #define MEM_SIZE 4096
 #define MEM_START 0x200
 #define STACK_SIZE 16
@@ -68,5 +68,7 @@ uint16_t chip8_decode_it(struct chip8 * chip);
 int chip8_execute(struct chip8 * chip, uint16_t it);
 
 int chip8_update_timers(struct chip8 * chip);
+
+int check_it_addr(uint16_t addr);
 
 #endif

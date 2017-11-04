@@ -256,6 +256,11 @@ static inline int check_mem_index(uint16_t begin, uint16_t offset,
         return (begin + offset < MEM_SIZE);
 }
 
+int check_it_addr(uint16_t addr)
+{
+    return addr >= MEM_START && addr < (MEM_SIZE -1);
+}
+
 void print_pixels(char pixels[N_LINES][N_COLS])
 {
     for(int l=0; l<N_LINES; l++)
@@ -627,7 +632,8 @@ int chip8_execute(struct chip8 * chip, uint16_t it)
     if(inc_pc)
         chip->cpu.pc += 2;
 
-    if(chip->cpu.pc >= (MEM_SIZE / sizeof(uint16_t)) || chip->cpu.pc < MEM_START)
+    // -1 because an instruction takes two bytes long
+    if(!check_it_addr(chip->cpu.pc))
         THROW("wrong pc", error, 0);
 
     return 1;
