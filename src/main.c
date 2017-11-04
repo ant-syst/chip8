@@ -20,7 +20,7 @@
     +-+-+-+-+                +-+-+-+-+
 */
 static enum chip8_key key_mapping(int key)
-{    
+{
     switch(key)
     {
         case '1':
@@ -74,17 +74,17 @@ static int run(struct chip8 * chip, struct io * io_ptr, struct debugger * dbg)
 
         if(!io_ptr->update(io_ptr, chip->pixels))
             THROW("update", error, 0);
-        
+
         if(io_ptr->input_poll(io_ptr, chip->keyboard) == CHIP8_QUIT)
             break;
             
         //dbg_call(dbg);
     }
-    
+
     return 1;
-    
+
     error:
-    
+
     return 0;
 }
 
