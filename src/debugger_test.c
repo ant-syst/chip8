@@ -12,11 +12,11 @@ int main(void)
 
     chip = chip8_alloc();
     if(!chip)
-        THROW2(error, 0, "chip8_alloc");
+        THROW(error, 0, "chip8_alloc");
 
     dbg = dbg_alloc(chip);
     if(!dbg)
-        THROW2(error, 0, "debugger_alloc");
+        THROW(error, 0, "debugger_alloc");
 
     while(1)
     {

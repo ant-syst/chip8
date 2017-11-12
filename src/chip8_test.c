@@ -63,13 +63,13 @@ static int copy_matrix(char * pixels, int pix_num_rows, int pix_num_cols,
     {
         int curr_y = row + m_y;
         if(curr_y > pix_num_rows)
-            THROW("Wrong matrix size", error, 0);
+            THROW2(error, 0, "Wrong matrix size");
 
         for(col=0; col<m_num_cols; col++)
         {
             int curr_x = col + m_x;
             if(curr_x > pix_num_cols)
-                THROW("Wrong matrix size", error, 0);
+                THROW2(error, 0, "Wrong matrix size");
 
             pixels[curr_y * pix_num_cols + curr_x] = matrix[row * m_num_cols + col];
         }
@@ -417,12 +417,12 @@ REGISTER_TEST(Dxyn_1)
     if(!copy_matrix(&chip->pixels[0][0], N_LINES, N_COLS,
                      &sprite_init[0][0], x, y,
                      NUM_ROWS(sprite_init), NUM_COLS(sprite_init)))
-        THROW("copy_matrix", error, 0);
+        THROW2(error, 0, "copy_matrix");
 
     if(!copy_matrix(&pixels[0][0], N_LINES, N_COLS,
                      &sprite_res[0][0], x, y-1,
                      NUM_ROWS(sprite_res), NUM_COLS(sprite_res)))
-        THROW("copy_matrix", error, 0);
+        THROW2(error, 0, "copy_matrix");
 
     y = 6;
 
@@ -436,10 +436,10 @@ REGISTER_TEST(Dxyn_1)
         return 0;
 
     if(chip->cpu.v[0xf] != 0)
-        THROW("chip->cpu.v[0xf] != 0", error, 0);
+        THROW2(error, 0, "chip->cpu.v[0xf] != 0");
 
     if(!cmp_matrix(&chip->pixels[0][0], &pixels[0][0], N_LINES, N_COLS))
-        THROW("cmp_matrix", error, 0);
+        THROW2(error, 0, "cmp_matrix");
 
     return 1;
 
@@ -479,12 +479,12 @@ REGISTER_TEST(Dxyn_2)
     if(!copy_matrix(&chip->pixels[0][0], N_LINES, N_COLS,
                      &sprite_init[0][0], x, y1,
                      NUM_ROWS(sprite_init), NUM_COLS(sprite_init)))
-        THROW("copy_matrix", error, 0);
+        THROW2(error, 0, "copy_matrix");
 
     if(!copy_matrix(&pixels[0][0], N_LINES, N_COLS,
                      &sprite_res_1[0][0], x, y1,
                      NUM_ROWS(sprite_res_1), NUM_COLS(sprite_res_1)))
-        THROW("copy_matrix", error, 0);
+        THROW2(error, 0, "copy_matrix");
 
     chip->cpu.i = MEM_START;
     chip->mem[chip->cpu.i] = 0b10000000;
@@ -495,16 +495,16 @@ REGISTER_TEST(Dxyn_2)
         return 0;
 
     if(chip->cpu.v[0xf] != 1)
-        THROW("chip->cpu.v[0xf] != 1", error, 0);
+        THROW2(error, 0, "chip->cpu.v[0xf] != 1");
 
     if(!cmp_matrix(&chip->pixels[0][0], &pixels[0][0], N_LINES, N_COLS))
-        THROW("cmp_matrix", error, 0);
+        THROW2(error, 0, "cmp_matrix");
 
     // 2eme part
     if(!copy_matrix(&pixels[0][0], N_LINES, N_COLS,
                      &sprite_res_2[0][0], x, y2,
                      NUM_ROWS(sprite_res_2), NUM_COLS(sprite_res_2)))
-        THROW("copy_matrix", error, 0);
+        THROW2(error, 0, "copy_matrix");
 
     chip->cpu.v[0xa] = x;
     chip->cpu.v[0xb] = y2;
@@ -515,7 +515,7 @@ REGISTER_TEST(Dxyn_2)
 
     // Test if Vf has been reset to 0
     if(chip->cpu.v[0xf] != 0)
-        THROW("chip->cpu.v[0xf] != 0", error, 0);
+        THROW2(error, 0, "chip->cpu.v[0xf] != 0");
 
     return 1;
 
@@ -545,12 +545,12 @@ REGISTER_TEST(Dxyn_3)
     if(!copy_matrix(&pixels[0][0], N_LINES, N_COLS,
                      &sprite_1[0][0], x, 0,
                      NUM_ROWS(sprite_1), NUM_COLS(sprite_1)))
-        THROW("copy_matrix", error, 0);
+        THROW2(error, 0, "copy_matrix");
 
     if(!copy_matrix(&pixels[0][0], N_LINES, N_COLS,
                      &sprite_2[0][0], x, 31,
                      NUM_ROWS(sprite_2), NUM_COLS(sprite_2)))
-        THROW("copy_matrix", error, 0);
+        THROW2(error, 0, "copy_matrix");
 
     chip->cpu.i = MEM_START;
     chip->mem[chip->cpu.i] = 0b10011001;
@@ -563,10 +563,10 @@ REGISTER_TEST(Dxyn_3)
         return 0;
 
     if(chip->cpu.v[0xf] != 0)
-        THROW("chip->cpu.v[0xf] != 0", error, 0);
+        THROW2(error, 0, "chip->cpu.v[0xf] != 0");
 
     if(!cmp_matrix(&chip->pixels[0][0], &pixels[0][0], N_LINES, N_COLS))
-        THROW("cmp_matrix", error, 0);
+        THROW2(error, 0, "cmp_matrix");
 
     return 1;
 
@@ -599,12 +599,12 @@ REGISTER_TEST(Dxyn_4)
     if(!copy_matrix(&pixels[0][0], N_LINES, N_COLS,
                      &sprite_1[0][0], 0, y,
                      NUM_ROWS(sprite_1), NUM_COLS(sprite_1)))
-        THROW("copy_matrix", error, 0);
+        THROW2(error, 0, "copy_matrix");
 
     if(!copy_matrix(&pixels[0][0], N_LINES, N_COLS,
                      &sprite_2[0][0], 56, y,
                      NUM_ROWS(sprite_2), NUM_COLS(sprite_2)))
-        THROW("copy_matrix", error, 0);
+        THROW2(error, 0, "copy_matrix");
 
     chip->cpu.i = MEM_START;
     chip->mem[chip->cpu.i] = 0b10011001;
@@ -617,10 +617,10 @@ REGISTER_TEST(Dxyn_4)
         return 0;
 
     if(chip->cpu.v[0xf] != 0)
-        THROW("chip->cpu.v[0xf] != 0", error, 0);
+        THROW2("chip->cpu.v[0xf] != 0");
 
     if(!cmp_matrix(&chip->pixels[0][0], &pixels[0][0], N_LINES, N_COLS))
-        THROW("cmp_matrix", error, 0);
+        THROW2(error, 0, "cmp_matrix");
 
     return 1;
 

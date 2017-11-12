@@ -17,7 +17,7 @@ int main(int argc, char ** argv)
     }
 
     if(sscanf(argv[1], "%x", &value) != 1)
-        THROW2(error, 0, "Wrong instruction");
+        THROW(error, 0, "Wrong instruction");
 
     it = value;
 

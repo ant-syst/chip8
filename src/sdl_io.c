@@ -6,7 +6,7 @@
 #define TRY(FN)                     \
 do {                                \
     if((FN) != 0)                   \
-        THROW("", sdl_error, 0);    \
+        THROW2(sdl_error, 0, "");   \
 } while(0)
 
 struct display {
@@ -141,11 +141,11 @@ struct io * sdl_alloc(int width, int height, keys_mapping * km,
     // Init lib once
     static int (*init_fn)() = &sdl_init;
     if(!init_fn(&init_fn))
-        THROW("init", error, 0);
+        THROW2(error, 0, "init");
 
     io_ptr = calloc(1, sizeof(struct io));
     if(!io_ptr)
-        THROW("calloc", error, 1);
+        THROW2(error, 1, "calloc");
     io_ptr->update = &sdl_render;
     io_ptr->free = &sdl_free;
     io_ptr->input_poll = &sdl_input_poll;
@@ -153,7 +153,7 @@ struct io * sdl_alloc(int width, int height, keys_mapping * km,
 
     dp = calloc(1, sizeof(struct display));
     if(!dp)
-        THROW("calloc", error, 1);
+        THROW2(error, 1, "calloc");
     dp->pixel_width = pixel_width;
     dp->pixel_height = pixel_height;
 
@@ -233,17 +233,17 @@ int main(void)
 
     io_ptr = sdl_alloc(800, 600, &key_mapping, 10, 10);
     if(!io_ptr)
-        THROW("dp_alloc", error, 0);
+        THROW2(error, 0, "dp_alloc");
 
     if(!sdl_render(io_ptr, pixels))
-        THROW("dp_render", error, 0);
+        THROW2(error, 0, "dp_render");
 
     sleep(1);
 
     pixels[N_LINES-1][N_COLS-1] = 1;
 
     if(!sdl_render(io_ptr, pixels))
-        THROW("dp_render", error, 0);
+        THROW2(error, 0, "dp_render");
 
     sdl_free(&io_ptr);
 
