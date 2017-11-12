@@ -1,19 +1,10 @@
 #ifndef H_CHIP_8
 #define H_CHIP_8
 
+#include "hw.h"
+
 #include <stdint.h>
 #include <sys/time.h>
-
-#define NUM_GPR 16
-#define FONTS_START 0x0
-
-#define MEM_SIZE 4096
-#define MEM_START 0x200
-#define STACK_SIZE 16
-
-#define N_KEYS 16
-#define N_LINES 32
-#define N_COLS 64
 
 enum chip8_key {
     KEY_0, KEY_1, KEY_2, KEY_3,
@@ -37,7 +28,6 @@ struct io {
     enum chip8_inputs (*input_poll)(struct io * io_ptr, uint8_t keys[N_KEYS]);
     void (*free)(struct io ** io_ptr);
 };
-
 // TODO TAD
 struct cpu {
     uint8_t v[NUM_GPR];
