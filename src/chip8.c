@@ -302,26 +302,13 @@ struct chip8 * chip8_alloc(void)
 
 int chip8_update_timers(struct chip8 * chip)
 {
-    struct timespec result;
-    long const timer_time = 1000000000L / 60; // 60 Hz
-
     if(chip->cpu.dt > 0 || chip->cpu.st > 0)
     {
-        if(clock_gettime(CLOCK_MONOTONIC, &chip->end) == -1)
-            THROW("clock_gettime", error, 0);
+        if(chip->cpu.dt > 0)
+            chip->cpu.dt--;
 
-        timespec_diff(&chip->begin, &chip->end, &result);
-
-        if(result.tv_nsec > timer_time || result.tv_sec > 1)
-        {
-            if(chip->cpu.dt > 0)
-                chip->cpu.dt--;
-
-            if(chip->cpu.st > 0)
-                chip->cpu.st--;
-
-            chip->begin = chip->end;
-        }
+        if(chip->cpu.st > 0)
+            chip->cpu.st--;
     }
 
     return 1;

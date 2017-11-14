@@ -22,7 +22,6 @@ struct chip8 {
     uint16_t stack[STACK_SIZE];
     char pixels[N_LINES][N_COLS];
     uint8_t keyboard[N_KEYS];
-    struct timespec begin, end;
 };
 
 void chip8_free(struct chip8 ** chip);
