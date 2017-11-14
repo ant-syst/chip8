@@ -5,11 +5,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-enum mem_access_type {
-    READ,
-    WRITE
-};
-
 #define X(it)(it >> 8 & 0b1111)
 #define Y(it)(it >> 4 & 0b1111)
 #define KK(it)(it & 0b11111111)
@@ -247,20 +242,6 @@ static int stack_push(struct chip8 * chip, uint16_t value)
     return 1;
 }
 
-static inline int check_mem_index(uint16_t begin, uint16_t offset,
-                                  enum mem_access_type access_type)
-{
-    if(access_type == WRITE)
-        return (begin >= MEM_START) && (begin + offset < MEM_SIZE);
-    else
-        return (begin + offset < MEM_SIZE);
-}
-
-int check_it_addr(uint16_t addr)
-{
-    return addr >= MEM_START && addr < (MEM_SIZE -1);
-}
-
 void print_pixels(char pixels[N_LINES][N_COLS])
 {
     for(int l=0; l<N_LINES; l++)
@@ -496,8 +477,8 @@ int chip8_execute(struct chip8 * chip, uint16_t it)
             int n = N(it);
             uint8_t * sprite = &chip->mem[chip->cpu.i];
 
-            if(!check_mem_index(chip->cpu.i, n, READ))
-                THROW(error, 0, "check_mem_index %d:%d",
+            if(!chip8_check_mem_range(chip->cpu.i, n, READ))
+                THROW(error, 0, "chip8_check_mem_range %d:%d",
                         chip->cpu.i, chip->cpu.i + n);
 
             chip->cpu.v[0xF] = 0;
@@ -575,7 +556,7 @@ int chip8_execute(struct chip8 * chip, uint16_t it)
                 {
                     uint8_t vx = chip->cpu.v[X(it)];
 
-                    if(!check_mem_index(chip->cpu.i, 2, WRITE))
+                    if(!chip8_check_mem_range(chip->cpu.i, 2, WRITE))
                         goto error;
 
                     chip->mem[chip->cpu.i] = vx / 100 % 10;
@@ -588,8 +569,8 @@ int chip8_execute(struct chip8 * chip, uint16_t it)
                 {
                     uint8_t size = X(it) + 1;
 
-                    if(!check_mem_index(chip->cpu.i, size, WRITE))
-                        THROW(error, 0, "check_mem_index");
+                    if(!chip8_check_mem_range(chip->cpu.i, size, WRITE))
+                        THROW(error, 0, "chip8_check_mem_range");
 
                     memcpy(&chip->mem[chip->cpu.i], chip->cpu.v, size);
                 }
@@ -599,8 +580,8 @@ int chip8_execute(struct chip8 * chip, uint16_t it)
                 {
                     uint8_t size = X(it) + 1;
 
-                    if(!check_mem_index(chip->cpu.i, size, READ))
-                        THROW(error, 0, "check_mem_index");
+                    if(!chip8_check_mem_range(chip->cpu.i, size, READ))
+                        THROW(error, 0, "chip8_check_mem_range");
 
                     memcpy(chip->cpu.v, &chip->mem[chip->cpu.i], size);
                 }
@@ -619,7 +600,7 @@ int chip8_execute(struct chip8 * chip, uint16_t it)
         chip->cpu.pc += 2;
 
     // -1 because an instruction takes two bytes long
-    if(!check_it_addr(chip->cpu.pc))
+    if(!chip8_check_it_addr(chip->cpu.pc))
         THROW(error, 0, "wrong pc");
 
     return 1;

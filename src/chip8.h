@@ -24,6 +24,11 @@ struct chip8 {
     uint8_t keyboard[N_KEYS];
 };
 
+enum mem_access_type {
+    READ,
+    WRITE
+};
+
 void chip8_free(struct chip8 ** chip);
 
 struct chip8 * chip8_alloc(void);
@@ -36,6 +41,19 @@ int chip8_execute(struct chip8 * chip, uint16_t it);
 
 int chip8_update_timers(struct chip8 * chip);
 
-int check_it_addr(uint16_t addr);
+static inline int chip8_check_mem_range(uint16_t begin, uint16_t offset,
+                                  enum mem_access_type access_type)
+{
+    if(access_type == WRITE)
+        return (begin >= MEM_START) && (begin + offset < MEM_SIZE);
+    else
+        return (begin + offset < MEM_SIZE);
+}
+
+static inline int chip8_check_it_addr(uint16_t addr)
+{
+    return addr >= MEM_START && addr < (MEM_SIZE -1);
+}
+
 
 #endif

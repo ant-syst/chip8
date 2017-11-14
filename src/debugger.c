@@ -285,7 +285,7 @@ static enum dbg_error exec_action(struct debugger * dbg)
             goto input_error;
         addr = value->valueint;
 
-        if(!check_it_addr(addr))
+        if(!chip8_check_it_addr(addr))
             goto wrong_addr_error;
 
         index = BKPTS_INDEX(addr);
