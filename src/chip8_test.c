@@ -1,10 +1,11 @@
 #include "tools.h"
-#include "chip8.h"
 #include "term_colors.h"
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <execinfo.h>
+
+#include "chip8.c"
 
 #define TEST_NAME(NAME) test ## _ ## NAME
 #define INIT_TEST_NAME(NAME) __init_test ## _ ## NAME
@@ -35,8 +36,6 @@ struct test_fn {
 };
 
 static struct test_fn * head, ** tail = &head;
-
-#include "chip8.c"
 
 // TODO test de overflow
 
