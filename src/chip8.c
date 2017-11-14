@@ -126,84 +126,6 @@ static uint8_t const fonts[][5] = {
     }
 };
 
-
-#if 0
-static void decode_trace(uint16_t it, struct chip8 * chip, char const * fmt, ...)
-{
-    va_list ap;
-    static char buffer[1024];
-    int msg_iter, len, max, curr_len;
-    int i;
-    int offset = 0;
-
-    va_start(ap, fmt);
-    len = vsnprintf(buffer, sizeof(buffer), fmt, ap);
-    va_end(ap);
-
-    /*
-    for(i=0, max=0, curr_len=0; i<len; i++, curr_len++)
-    {
-        if(buffer[i] == '\n')
-        {
-            max = (max > curr_len) ? max: curr_len;
-            curr_len = 0;
-        }
-    }
-    max = (max > curr_len) ? max: curr_len;
-    */
-
-    max = 20;
-
-    /* First line */
-    offset += printf("%#6x", it);
-    offset += printf("    ");
-
-    for(msg_iter=0; msg_iter<len && buffer[msg_iter] != '\n'; msg_iter++)
-        offset += printf("%c", buffer[msg_iter]);
-    for(i=msg_iter; i<max; i++)
-        offset += printf(" ");
-
-    offset += printf("    ");
-    offset += printf("cpu:  ");
-
-    printf("gpr:");
-    for(i=0; i<NUM_GPR; i++)
-        printf(" %3x", chip->cpu.v[i]);
-    printf("\n");
-
-    /* Second line */
-
-    printf("      ");
-    printf("    ");
-
-    if(buffer[msg_iter] == '\n')
-        msg_iter++;
-
-    for(i=0; msg_iter<len && buffer[msg_iter] != '\n'; msg_iter++, i++)
-        printf("%c", buffer[msg_iter]);
-    for(; i<max; i++)
-        printf(" ");
-
-    //printf("max %d\n", max);
-
-    printf("        ");
-
-    printf("  %3s: %#4x %4d\n", "i", chip->cpu.i, chip->cpu.i);
-    printf("%*s%3s: %#4x %4d\n", offset, "", "pc", chip->cpu.pc, chip->cpu.pc);
-    printf("%*s%3s: %#4x %4d\n", offset, "", "sp", chip->cpu.sp, chip->cpu.sp);
-    printf("%*s%3s: %#4x %4d\n", offset, "", "dt", chip->cpu.dt, chip->cpu.dt);
-    printf("%*s%3s: %#4x %4d\n", offset, "", "st", chip->cpu.st, chip->cpu.st);
-}
-#else
-static void decode_trace(uint16_t it, struct chip8 * chip, char const * fmt, ...)
-{
-    it = it;
-    chip = chip;
-    fmt = fmt;
-}
-#endif
-
-
 static int get_keypress(struct chip8 * chip)
 {
     int i;
@@ -360,8 +282,6 @@ int chip8_execute(struct chip8 * chip, uint16_t it)
         case 0x1000:
             chip->cpu.pc = nnn;
             inc_pc = 0;
-
-            decode_trace(it, chip, "pc <- %d", NNN(it));
         break;
 
         case 0x2000:
@@ -375,8 +295,6 @@ int chip8_execute(struct chip8 * chip, uint16_t it)
         case 0x3000:
             if(chip->cpu.v[x] == kk)
                 chip->cpu.pc += 2;
-
-            decode_trace(it, chip, "if(v%d == %d)\n    pc += 2", X(it), KK(it));
         break;
 
         case 0x4000:
@@ -392,9 +310,8 @@ int chip8_execute(struct chip8 * chip, uint16_t it)
         case 0x6000:
             chip->cpu.v[x] = kk;
         break;
-        case 0x7000:
 
-            decode_trace(it, chip, "V%d <- V%d + %d", X(it), X(it), KK(it));
+        case 0x7000:
             chip->cpu.v[x] += kk;
         break;
 
@@ -460,19 +377,17 @@ int chip8_execute(struct chip8 * chip, uint16_t it)
             if(chip->cpu.v[x] != chip->cpu.v[y])
                 chip->cpu.pc += 2;
         break;
-        case 0xA000:
-            chip->cpu.i = NNN(it);
 
-            decode_trace(it, chip, "I <- %d", chip->cpu.i);
+        case 0xA000:
+            chip->cpu.i = nnn;
         break;
 
         case 0xB000:
             chip->cpu.pc = nnn + chip->cpu.v[0];
             inc_pc = 0;
         break;
-        case 0xC000:
 
-            decode_trace(it, chip, "V%d <- %d", X(it), chip->cpu.v[X(it)]);
+        case 0xC000:
             chip->cpu.v[x] = rand() % 0xFF & kk;
         break;
 
@@ -517,15 +432,11 @@ int chip8_execute(struct chip8 * chip, uint16_t it)
                 case 0x9E:
                     if(key_has_been_pressed(chip, chip->cpu.v[x]))
                         chip->cpu.pc += 2;
-
-                    decode_trace(it, chip, "if(key v%d has been pressed)\n    pc += 2", X(it));
                 break;
 
                 case 0xA1:
                     if(!key_has_been_pressed(chip, chip->cpu.v[x]))
                         chip->cpu.pc += 2;
-
-                    decode_trace(it, chip, "if(key v%d has not been pressed)\n    pc += 2", X(it));
                 break;
 
                 default:
@@ -548,8 +459,6 @@ int chip8_execute(struct chip8 * chip, uint16_t it)
                         chip->cpu.v[x] = keypress;
                     else
                         inc_pc = 0;
-
-                    decode_trace(it, chip, "V%d <- keypressed", X(it));
                 }
                 break;
 
