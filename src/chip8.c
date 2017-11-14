@@ -217,10 +217,6 @@ int chip8_update_timers(struct chip8 * chip)
     }
 
     return 1;
-
-    error:
-
-    return 0;
 }
 
 uint16_t chip8_decode_it(struct chip8 * chip)
