@@ -1,7 +1,5 @@
 #include "tools.h"
 #include "chip8.h"
-#include "term_colors.h"
-#include "args.h"
 #include "disassemble.h"
 
 #include <string.h>
