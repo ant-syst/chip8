@@ -126,7 +126,7 @@ static uint8_t const fonts[][5] = {
     }
 };
 
-static int get_keypress(struct chip8 * chip)
+static inline int get_keypress(struct chip8 * chip)
 {
     int i;
 
@@ -137,12 +137,14 @@ static int get_keypress(struct chip8 * chip)
     return -1;
 }
 
-static int key_has_been_pressed(struct chip8 * chip, int key)
+static inline int key_has_been_pressed(struct chip8 * chip, int key)
 {
-    return chip->keyboard[key];
+    int res = chip->keyboard[key];
+    chip->keyboard[key] = 0;
+    return res;
 }
 
-static int stack_pop(struct chip8 * chip, uint16_t * address)
+static inline int stack_pop(struct chip8 * chip, uint16_t * address)
 {
     if(chip->cpu.sp <= 0)
         return 0;
@@ -153,7 +155,7 @@ static int stack_pop(struct chip8 * chip, uint16_t * address)
     return 1;
 }
 
-static int stack_push(struct chip8 * chip, uint16_t value)
+static inline int stack_push(struct chip8 * chip, uint16_t value)
 {
     if(chip->cpu.sp >= STACK_SIZE)
         return 0;
