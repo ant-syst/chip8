@@ -126,19 +126,12 @@ static enum chip8_inputs sdl_input_poll(struct io * io_ptr, uint8_t keys[N_KEYS]
                 return CHIP8_QUIT;
             case SDL_KEYDOWN:
             case SDL_KEYUP:
-
-                /*printf("Physical %d:%s key acting as %d:%s key\n",
-                        event.key.keysym.scancode,
-                        SDL_GetScancodeName(event.key.keysym.scancode),
-                        event.key.keysym.sym,
-                        SDL_GetKeyName(event.key.keysym.sym));*/
-
                 if(event.key.keysym.sym == SDLK_ESCAPE)
                     return CHIP8_QUIT;
 
                 key = io_ptr->km(event.key.keysym.sym);
                 if(key != IO_KEY_NOT_FOUND)
-                    keys[key] = event.type == SDL_KEYDOWN;
+                    keys[key] = event.type == SDL_KEYDOWN;  // TODO fail
             break;
         }
     }
