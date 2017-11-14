@@ -16,7 +16,9 @@
 #include <inttypes.h>
 #include <fcntl.h>
 
-#define MY_SOCK_PATH "/tmp/t.sock"
+#define DEBUG_DISABLED ((void*)1)
+
+#define DBG_SOCK_PATH "/tmp/t.sock"  // TODO
 #define MSG_LEN 1024
 
 #define BKPTS_LEN (MEM_SIZE-MEM_START)
@@ -350,12 +352,14 @@ static int create_server_socket(void)
     struct sockaddr_un addr;
     int sd;
 
+    unlink(DBG_SOCK_PATH);
+
     sd = socket(PF_UNIX, SOCK_SEQPACKET, 0);
     if(sd == -1)
         THROW(error, 1, "socket");
 
     addr.sun_family = AF_UNIX;
-    strncpy(addr.sun_path, MY_SOCK_PATH, sizeof(addr.sun_path)-1);
+    strncpy(addr.sun_path, DBG_SOCK_PATH, sizeof(addr.sun_path)-1);
 
     if(bind(sd, (struct sockaddr*)&addr, sizeof(struct sockaddr_un)) == -1)
         THROW(error, 1, "bind");
