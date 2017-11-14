@@ -329,10 +329,13 @@ int chip8_load_rom(struct chip8 * chip, char const * path)
     return 0;
 }
 
-
 int chip8_execute(struct chip8 * chip, uint16_t it)
 {
     int inc_pc = 1;
+    const unsigned int nnn = NNN(it);
+    const unsigned int x = X(it);
+    const unsigned int y = Y(it);
+    const unsigned int kk = KK(it);
 
     switch(it & 0XF000)
     {
@@ -341,7 +344,6 @@ int chip8_execute(struct chip8 * chip, uint16_t it)
             {
                 case 0xE0:
                     memset(chip->pixels, 0, N_COLS * N_LINES);
-
                 break;
 
                 case 0xEE:
@@ -354,8 +356,9 @@ int chip8_execute(struct chip8 * chip, uint16_t it)
                 break;
             }
         break;
+
         case 0x1000:
-            chip->cpu.pc = NNN(it);
+            chip->cpu.pc = nnn;
             inc_pc = 0;
 
             decode_trace(it, chip, "pc <- %d", NNN(it));
@@ -365,83 +368,84 @@ int chip8_execute(struct chip8 * chip, uint16_t it)
             if(!stack_push(chip, chip->cpu.pc))
                 THROW(error, 0, "stack_push");
 
-            chip->cpu.pc = NNN(it);
+            chip->cpu.pc = nnn;
             inc_pc = 0;
         break;
 
         case 0x3000:
-            if(chip->cpu.v[X(it)] == KK(it))
+            if(chip->cpu.v[x] == kk)
                 chip->cpu.pc += 2;
 
             decode_trace(it, chip, "if(v%d == %d)\n    pc += 2", X(it), KK(it));
         break;
 
         case 0x4000:
-            if(chip->cpu.v[X(it)] != KK(it))
+            if(chip->cpu.v[x] != kk)
                 chip->cpu.pc += 2;
         break;
 
         case 0x5000:
-            if(chip->cpu.v[X(it)] == chip->cpu.v[Y(it)])
+            if(chip->cpu.v[x] == chip->cpu.v[y])
                 chip->cpu.pc += 2;
         break;
 
         case 0x6000:
-            chip->cpu.v[X(it)] = KK(it);
+            chip->cpu.v[x] = kk;
         break;
         case 0x7000:
-            chip->cpu.v[X(it)] += KK(it);
 
             decode_trace(it, chip, "V%d <- V%d + %d", X(it), X(it), KK(it));
+            chip->cpu.v[x] += kk;
         break;
+
         case 0x8000:
         {
-            uint8_t vx = chip->cpu.v[X(it)];
-            uint8_t vy = chip->cpu.v[Y(it)];
+            uint8_t vx = chip->cpu.v[x];
+            uint8_t vy = chip->cpu.v[y];
 
             switch(it & 0xF)
             {
                 case 0x0:
-                    chip->cpu.v[X(it)] = vy;
+                    chip->cpu.v[x] = vy;
                 break;
 
                 case 0x1:
-                    chip->cpu.v[X(it)] = vx | vy;
+                    chip->cpu.v[x] = vx | vy;
                 break;
 
                 case 0x2:
-                    chip->cpu.v[X(it)] = vx & vy;
+                    chip->cpu.v[x] = vx & vy;
                 break;
 
                 case 0x3:
-                    chip->cpu.v[X(it)] = vx ^ vy;
+                    chip->cpu.v[x] = vx ^ vy;
                 break;
 
                 case 0x4:
                 {
                     uint16_t res = vx + vy;
-                    chip->cpu.v[X(it)] = (uint8_t)res;
+                    chip->cpu.v[x] = (uint8_t)res;
                     chip->cpu.v[0XF] = res > 0xFF;
                 }
                 break;
 
                 case 0x5:
-                    chip->cpu.v[X(it)] = vx - vy;
+                    chip->cpu.v[x] = vx - vy;
                     chip->cpu.v[0XF] = vx > vy;
                 break;
 
                 case 0x6:
-                    chip->cpu.v[X(it)] = vx >> 1;
+                    chip->cpu.v[x] = vx >> 1;
                     chip->cpu.v[0XF] = vx & 0b1;
                 break;
 
                 case 0x7:
-                    chip->cpu.v[X(it)] = vy - vx;
+                    chip->cpu.v[x] = vy - vx;
                     chip->cpu.v[0XF] = vy > vx;
                 break;
 
                 case 0xE:
-                    chip->cpu.v[X(it)] = vx << 1;
+                    chip->cpu.v[x] = vx << 1;
                     chip->cpu.v[0XF] = vx >> 7 & 0b1;
                 break;
 
@@ -451,8 +455,9 @@ int chip8_execute(struct chip8 * chip, uint16_t it)
             }
         }
         break;
+
         case 0x9000:
-            if(chip->cpu.v[X(it)] != chip->cpu.v[Y(it)])
+            if(chip->cpu.v[x] != chip->cpu.v[y])
                 chip->cpu.pc += 2;
         break;
         case 0xA000:
@@ -460,20 +465,22 @@ int chip8_execute(struct chip8 * chip, uint16_t it)
 
             decode_trace(it, chip, "I <- %d", chip->cpu.i);
         break;
+
         case 0xB000:
-            chip->cpu.pc = NNN(it) + chip->cpu.v[0];
+            chip->cpu.pc = nnn + chip->cpu.v[0];
             inc_pc = 0;
         break;
         case 0xC000:
-            chip->cpu.v[X(it)] = rand() % 0xFF & KK(it);
 
             decode_trace(it, chip, "V%d <- %d", X(it), chip->cpu.v[X(it)]);
+            chip->cpu.v[x] = rand() % 0xFF & kk;
         break;
+
         case 0xD000:
         {
             int row, col;
-            int vx = chip->cpu.v[X(it)];
-            int vy = chip->cpu.v[Y(it)];
+            int vx = chip->cpu.v[x];
+            int vy = chip->cpu.v[y];
             int n = N(it);
             uint8_t * sprite = &chip->mem[chip->cpu.i];
 
@@ -503,58 +510,68 @@ int chip8_execute(struct chip8 * chip, uint16_t it)
             }
         }
         break;
+
         case 0xE000:
             switch(it & 0xFF)
             {
                 case 0x9E:
-                    if(key_has_been_pressed(chip, chip->cpu.v[X(it)]))
+                    if(key_has_been_pressed(chip, chip->cpu.v[x]))
                         chip->cpu.pc += 2;
 
                     decode_trace(it, chip, "if(key v%d has been pressed)\n    pc += 2", X(it));
                 break;
+
                 case 0xA1:
-                    if(!key_has_been_pressed(chip, chip->cpu.v[X(it)]))
+                    if(!key_has_been_pressed(chip, chip->cpu.v[x]))
                         chip->cpu.pc += 2;
 
                     decode_trace(it, chip, "if(key v%d has not been pressed)\n    pc += 2", X(it));
                 break;
+
                 default:
                     printf("Not managed %#x\n", it);
                 break;
             }
         break;
+
         case 0xF000:
             switch(it & 0xFF)
             {
                 case 0x07:
-                    chip->cpu.v[X(it)] = chip->cpu.dt;
+                    chip->cpu.v[x] = chip->cpu.dt;
                 break;
+
                 case 0x0A:
                 {
                     int keypress = get_keypress(chip);
                     if(keypress >= 0)
-                        chip->cpu.v[X(it)] = keypress;
+                        chip->cpu.v[x] = keypress;
                     else
                         inc_pc = 0;
 
                     decode_trace(it, chip, "V%d <- keypressed", X(it));
                 }
                 break;
+
                 case 0x15:
-                    chip->cpu.dt = chip->cpu.v[X(it)];
+                    chip->cpu.dt = chip->cpu.v[x];
                 break;
+
                 case 0x18:
-                    chip->cpu.st = chip->cpu.v[X(it)];
+                    chip->cpu.st = chip->cpu.v[x];
                 break;
+
                 case 0x1E:
-                    chip->cpu.i += chip->cpu.v[X(it)];
+                    chip->cpu.i += chip->cpu.v[x];
                 break;
+
                 case 0x29:
-                    chip->cpu.i = FONTS_START + chip->cpu.v[X(it)] * 5;
+                    chip->cpu.i = FONTS_START + chip->cpu.v[x] * 5;
                 break;
+
                 case 0x33:
                 {
-                    uint8_t vx = chip->cpu.v[X(it)];
+                    uint8_t vx = chip->cpu.v[x];
 
                     if(!chip8_check_mem_range(chip->cpu.i, 2, WRITE))
                         goto error;
@@ -567,7 +584,7 @@ int chip8_execute(struct chip8 * chip, uint16_t it)
 
                 case 0x55:
                 {
-                    uint8_t size = X(it) + 1;
+                    uint8_t size = x + 1;
 
                     if(!chip8_check_mem_range(chip->cpu.i, size, WRITE))
                         THROW(error, 0, "chip8_check_mem_range");
@@ -578,7 +595,7 @@ int chip8_execute(struct chip8 * chip, uint16_t it)
 
                 case 0x65:
                 {
-                    uint8_t size = X(it) + 1;
+                    uint8_t size = x + 1;
 
                     if(!chip8_check_mem_range(chip->cpu.i, size, READ))
                         THROW(error, 0, "chip8_check_mem_range");
