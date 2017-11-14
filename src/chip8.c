@@ -284,11 +284,10 @@ void chip8_free(struct chip8 ** chip)
 
 struct chip8 * chip8_alloc(void)
 {
-    struct chip8 * chip = malloc(sizeof(struct chip8));
+    struct chip8 * chip = calloc(1, sizeof(struct chip8));
     if(!chip)
-        THROW2(error, 1, "malloc");
+        THROW(error, 1, "malloc");
 
-    memset(chip, 0, sizeof(struct chip8));
     memcpy(&chip->mem[FONTS_START], fonts, sizeof(fonts));
     chip->cpu.pc = MEM_START;
 
