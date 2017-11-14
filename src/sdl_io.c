@@ -64,27 +64,40 @@ void sdl_free(struct io ** io_ptr)
 
 int sdl_render(struct io * io_ptr, char pixels[N_LINES][N_COLS])
 {
-    int y, x;
-    SDL_Rect rect;
+    int x, y, ww, wh;
+    SDL_Rect disp, pix;
     struct display * dp = io_ptr->opaque;
+
+    SDL_GetWindowSize(dp->window, &ww, &wh);
 
     // Clear screen
     TRY(SDL_SetRenderDrawColor(dp->renderer, 0, 0, 0, 255));
     TRY(SDL_RenderClear(dp->renderer));
 
-    for(x = 0; x < N_COLS; x++) {
+    // Draw border screen
+    TRY(SDL_SetRenderDrawColor(dp->renderer, 0xFF, 0xFF, 0xFF, 0x00));
+    disp.w = dp->pixel_width * N_COLS;
+    disp.h = dp->pixel_height * N_LINES;
+    disp.x = (ww - disp.w) / 2;
+    disp.x = disp.x < 0 ? 0 : disp.x;
+    disp.y = (wh - disp.h) / 2;
+    disp.y = disp.y < 0 ? 0 : disp.y;
+    TRY(SDL_RenderDrawRect(dp->renderer, &disp));
 
-        for(y = 0; y < N_LINES; y++) {
+    // Draw pixels
+    pix.w = dp->pixel_width;
+    pix.h = dp->pixel_height;
 
+    for(x=0; x<N_COLS; x++)
+    {
+        for(y=0; y<N_LINES; y++)
+        {
             if(pixels[y][x])
             {
-                rect.x = x * dp->pixel_width;
-                rect.y = y * dp->pixel_height;
-                rect.w = dp->pixel_width;
-                rect.h = dp->pixel_height;
-
+                pix.x = disp.x + x * dp->pixel_width;
+                pix.y = disp.y + y * dp->pixel_height;
                 TRY(SDL_SetRenderDrawColor(dp->renderer, 0xFF, 0xFF, 0xFF, 0x00));
-                TRY(SDL_RenderFillRect(dp->renderer, &rect));
+                TRY(SDL_RenderFillRect(dp->renderer, &pix));
             }
         }
     }
