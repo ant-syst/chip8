@@ -341,14 +341,14 @@ int chip8_load_rom(struct chip8 * chip, char const * path)
 {
     FILE * program = fopen(path, "rb");
     if(program == NULL)
-        THROW2(error, 1, "fopen");
+        THROW(error, 1, "fopen");
 
     fread(&chip->mem[MEM_START], 1, MEM_SIZE - MEM_START, program);
     if(ferror(program))
-        THROW2(error, 1, "fread");
+        THROW(error, 1, "fread");
 
     if(!feof(program))
-        THROW2(error, 0, "Program size too large");
+        THROW(error, 0, "Program size too large");
 
     fclose(program);
 
@@ -379,7 +379,7 @@ int chip8_execute(struct chip8 * chip, uint16_t it)
 
                 case 0xEE:
                     if(!stack_pop(chip, &chip->cpu.pc))
-                        THROW2(error, 0, "stack_pop");
+                        THROW(error, 0, "stack_pop");
                 break;
 
                 default:
@@ -396,7 +396,7 @@ int chip8_execute(struct chip8 * chip, uint16_t it)
 
         case 0x2000:
             if(!stack_push(chip, chip->cpu.pc))
-                THROW2(error, 0, "stack_push");
+                THROW(error, 0, "stack_push");
 
             chip->cpu.pc = NNN(it);
             inc_pc = 0;
@@ -511,7 +511,7 @@ int chip8_execute(struct chip8 * chip, uint16_t it)
             uint8_t * sprite = &chip->mem[chip->cpu.i];
 
             if(!check_mem_index(chip->cpu.i, n, READ))
-                THROW2(error, 0, "check_mem_index %d:%d",
+                THROW(error, 0, "check_mem_index %d:%d",
                         chip->cpu.i, chip->cpu.i + n);
 
             chip->cpu.v[0xF] = 0;
@@ -603,7 +603,7 @@ int chip8_execute(struct chip8 * chip, uint16_t it)
                     uint8_t size = X(it) + 1;
 
                     if(!check_mem_index(chip->cpu.i, size, WRITE))
-                        THROW2(error, 0, "check_mem_index");
+                        THROW(error, 0, "check_mem_index");
 
                     memcpy(&chip->mem[chip->cpu.i], chip->cpu.v, size);
                 }
@@ -614,7 +614,7 @@ int chip8_execute(struct chip8 * chip, uint16_t it)
                     uint8_t size = X(it) + 1;
 
                     if(!check_mem_index(chip->cpu.i, size, READ))
-                        THROW2(error, 0, "check_mem_index");
+                        THROW(error, 0, "check_mem_index");
 
                     memcpy(chip->cpu.v, &chip->mem[chip->cpu.i], size);
                 }
@@ -634,7 +634,7 @@ int chip8_execute(struct chip8 * chip, uint16_t it)
 
     // -1 because an instruction takes two bytes long
     if(!check_it_addr(chip->cpu.pc))
-        THROW2(error, 0, "wrong pc");
+        THROW(error, 0, "wrong pc");
 
     return 1;
 

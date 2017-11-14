@@ -72,7 +72,7 @@ static void msg_buffer_init(struct debugger * dbg, struct jso_ctx * ctx)
 static enum dbg_error msg_buffer_flush(struct debugger * dbg)
 {
     if(fflush(dbg->output.stream) != 0)
-        THROW2(error, 1, "fflush");
+        THROW(error, 1, "fflush");
 
     if(dbg->output.size != 0)
         if(send(dbg->client.sd, dbg->output.buff, dbg->output.size, 0) == -1)
@@ -352,16 +352,16 @@ static int create_server_socket(void)
 
     sd = socket(PF_UNIX, SOCK_SEQPACKET, 0);
     if(sd == -1)
-        THROW2(error, 1, "socket");
+        THROW(error, 1, "socket");
 
     addr.sun_family = AF_UNIX;
     strncpy(addr.sun_path, MY_SOCK_PATH, sizeof(addr.sun_path)-1);
 
     if(bind(sd, (struct sockaddr*)&addr, sizeof(struct sockaddr_un)) == -1)
-        THROW2(error, 1, "bind");
+        THROW(error, 1, "bind");
 
     if(listen(sd, 1) == -1)
-        THROW2(error, 1, "listen");
+        THROW(error, 1, "listen");
 
     return sd;
 
