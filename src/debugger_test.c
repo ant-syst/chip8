@@ -1,4 +1,3 @@
-#include "chip8.h"
 #include "tools.h"
 #include "debugger.h"
 
@@ -14,7 +13,7 @@ int main(void)
     if(!chip)
         THROW(error, 0, "chip8_alloc");
 
-    dbg = dbg_alloc(chip);
+    dbg = dbg_alloc(chip, 1);
     if(!dbg)
         THROW(error, 0, "debugger_alloc");
 
