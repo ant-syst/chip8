@@ -21,7 +21,7 @@ static inline void timespec_diff(struct timespec *start, struct timespec *stop, 
     }
 }
 
-static inline void timespec_add_ns2(struct timespec *ts, uint64_t ns)
+static inline void timespec_add_ns(struct timespec *ts, uint64_t ns)
 {
     ts->tv_sec += ns / NS_PER_SEC;
     ts->tv_nsec = ns % NS_PER_SEC;
