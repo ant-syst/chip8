@@ -43,6 +43,9 @@ int main(int argc, char ** argv)
     struct chip8 * chip = NULL;
     char const * rom = NULL;
     int pix_size = 10;
+    int enable_debug;
+
+    enable_debug = parse_name(argc, argv, "--use-debug");
 
     rom = parse_str(argc, argv, "--rom", NULL);
     if(!rom)
@@ -59,7 +62,7 @@ int main(int argc, char ** argv)
     if(!io_ptr)
         THROW("sdl_alloc", error, 0);
 
-    dbg = dbg_alloc(chip);
+    dbg = dbg_alloc(chip, enable_debug);
     if(!dbg)
         THROW("dbg_alloc", error, 0);
 

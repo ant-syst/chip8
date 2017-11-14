@@ -383,7 +383,7 @@ void close_client(struct debugger * dbg)
 
 void dbg_free(struct debugger ** dbg)
 {
-    if(*dbg)
+    if(*dbg && *dbg != DEBUG_DISABLED)
     {
         if((*dbg)->output.stream)
             fclose((*dbg)->output.stream);
@@ -398,28 +398,34 @@ void dbg_free(struct debugger ** dbg)
             close_client(*dbg);
 
         free(*dbg);
-
-        *dbg = NULL;
     }
+
+    *dbg = NULL;
 }
 
-struct debugger * dbg_alloc(struct chip8 * chip)
+struct debugger * dbg_alloc(struct chip8 * chip, int enable_debug)
 {
     struct debugger * dbg;
 
-    dbg = calloc(1, sizeof(struct debugger));
-    if(!dbg)
-        THROW2(error, 1, "calloc");
-    dbg->chip = chip;
-    dbg->output.stream = open_memstream(&dbg->output.buff, &dbg->output.size);
-    if(!dbg->output.stream)
-        THROW2(error, 1, "open_memstream");
+    if(enable_debug)
+    {
+        dbg = calloc(1, sizeof(struct debugger));
+        if(!dbg)
+            THROW(error, 1, "calloc");
 
-    dbg->server.sd = create_server_socket();
-    if(dbg->server.sd <= 0)
-        THROW2(error, 0, "create_server");
-    dbg->client.state = DBG_CLIENT_DISCONNECTED;
-    dbg->state = DBG_STOPPED;
+        dbg->chip = chip;
+        dbg->output.stream = open_memstream(&dbg->output.buff, &dbg->output.size);
+        if(!dbg->output.stream)
+            THROW(error, 1, "open_memstream");
+
+        dbg->server.sd = create_server_socket();
+        if(dbg->server.sd <= 0)
+            THROW(error, 0, "create_server");
+        dbg->client.state = DBG_CLIENT_DISCONNECTED;
+        dbg->state = DBG_STOPPED;
+    }
+    else
+        dbg = DEBUG_DISABLED;
 
     return dbg;
 
@@ -478,6 +484,9 @@ int dbg_call(struct debugger * dbg)
     enum dbg_error err;
     struct jso_ctx ctx;
     int received, cont = 1;
+
+    if(dbg == DEBUG_DISABLED)
+        return 1;
 
     do
     {

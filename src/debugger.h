@@ -2,13 +2,12 @@
 #define H_DEBUGGER
 
 #include "chip8.h"
-#include "tools.h"
 
 #include <stdint.h>
 
 struct debugger;
 
-struct debugger * dbg_alloc(struct chip8 * chip);
+struct debugger * dbg_alloc(struct chip8 * chip, int enable_debug);
 
 void dbg_free(struct debugger ** dbg);
 
