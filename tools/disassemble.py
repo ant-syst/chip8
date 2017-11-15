@@ -153,7 +153,8 @@ class Instruction:
         self.is_label = is_label
 
         it = self.little_endian_it()
-        self.decoded_it = subprocess.check_output(["./bin/disassemble2.elf", "%x" % it]).decode().rstrip()
+        # TODO
+        self.decoded_it = subprocess.check_output(["./bin/disassemble.elf", "%x" % it]).decode().rstrip()
 
     @property
     def addr(self):

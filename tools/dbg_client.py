@@ -10,7 +10,7 @@ import os
 
 from dbg import dbg
 from dbg_actions import Actions, ActionError
-from disassemble2 import Instruction
+from disassemble import Instruction
 
 class Chip8:
     MEM_SIZE = 4096
