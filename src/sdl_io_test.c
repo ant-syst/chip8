@@ -1,50 +1,9 @@
 #include "sdl_io.h"
 #include "tools.h"
+#include "mapping.h"
 
 #include <unistd.h>
 #include <stdlib.h>
-
-// TODO double
-static enum chip8_key key_mapping(int key)
-{
-	switch(key)
-	{
-		case '1':
-			return KEY_1;
-		case '2':
-			return KEY_2;
-		case '4':
-			return KEY_3;
-		case '3':
-			return KEY_C;
-		case 'q':
-			return KEY_4;
-		case 'w':
-			return KEY_5;
-		case 'e':
-			return KEY_6;
-		case 'r':
-			return KEY_D;
-		case 'a':
-			return KEY_7;
-		case 's':
-			return KEY_8;
-		case 'd':
-			return KEY_9;
-		case 'f':
-			return KEY_E;
-		case 'z':
-			return KEY_A;
-		case 'x':
-			return KEY_0;
-		case 'c':
-			return KEY_B;
-		case 'v':
-			return KEY_F;
-		default:
-			return IO_KEY_NOT_FOUND;
-	}
-}
 
 int main(void)
 {
