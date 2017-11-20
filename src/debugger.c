@@ -18,12 +18,18 @@
 
 #define DEBUG_DISABLED ((void*)1)
 
-#define DBG_SOCK_PATH "/tmp/t.sock"  // TODO
+#define DBG_SOCK_PATH "/var/run/chip8.sock"
 #define MSG_LEN 1024
 
 #define BKPTS_LEN (MEM_SIZE-MEM_START)
 #define BKPTS_INDEX(ADDR)((ADDR)-MEM_START)
 #define BKPTS_ADDR(INDEX)((INDEX)+MEM_START)
+
+#define TRY(expression, res, label) \
+do{                                 \
+    if((expression) != (res))       \
+        goto label;                 \
+} while(0)
 
 enum dbg_error {
     DBG_OK,
@@ -472,12 +478,6 @@ static void accept_new_client(struct debugger * dbg)
             dbg->client.state = DBG_CLIENT_CONNECTED;
     }
 }
-
-#define TRY(expression, res, label) \
-do{                                 \
-    if((expression) != (res))       \
-        goto label;                 \
-} while(0)
 
 int dbg_call(struct debugger * dbg)
 {
