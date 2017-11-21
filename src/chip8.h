@@ -6,7 +6,6 @@
 #include <stdint.h>
 #include <sys/time.h>
 
-// TODO TAD
 struct cpu {
     uint8_t v[NUM_GPR];
     uint16_t i;
@@ -54,6 +53,5 @@ static inline int chip8_check_it_addr(uint16_t addr)
 {
     return addr >= MEM_START && addr < (MEM_SIZE -1);
 }
-
 
 #endif
