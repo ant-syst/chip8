@@ -8,6 +8,7 @@ import itertools
 
 from termcolor import colored
 from itertools import tee
+from hw import HW
 
 def pairwise(iterable):
     "s -> (s0,s1), (s1,s2), (s2, s3), ..."
@@ -153,7 +154,7 @@ class Instruction:
         self.is_label = is_label
 
         it = self.little_endian_it()
-        # TODO
+
         self.decoded_it = subprocess.check_output(["./bin/disassemble.elf", "%x" % it]).decode().rstrip()
 
     @property
@@ -192,9 +193,8 @@ class Hexadeciml:
 class ROM:
 
     def __init__(self, binary):
-
-        self.start = 0x200
-        self.mem_size = 4096
+        self.start = HW.MEM_START
+        self.mem_size = HW.MEM_SIZE
 
         if len(binary) > (self.mem_size - self.start):
             raise ValueError("Program size too large")
@@ -234,22 +234,16 @@ class Disassembler:
 
     def disassemble(self):
 
-        it = iter(pairwise(self.rom.addr_mem()))
-        for (addr1, byte1), (addr2, byte2) in it:
+        addr_mem = itertools.chain(self.rom.addr_mem(), [(None, None)])
+
+        for (addr1, byte1), (addr2, byte2) in iter(pairwise(addr_mem)):
             if addr1 in self.its_addr:
-                yield Instruction(addr1, byte1, addr2, byte2, addr1 in self.labels_addrs)
+                if byte2 is not None:
+                    yield Instruction(addr1, byte1, addr2, byte2, addr1 in self.labels_addrs)
             elif addr1 in self.data_addr:
                 yield Sprite(addr1, byte1)
             else:
                 yield Hexadeciml(addr1, byte1)
-
-        # TODO
-        if addr2 in self.its_addr:
-            yield Instruction(addr2, byte2, None, None, addr2 in self.labels_addrs)
-        elif addr1 in self.data_addr:
-            yield Sprite(addr2, byte2)
-        else:
-            yield Hexadeciml(addr2, byte2)
 
 def disassemble_instructions(args):
 
@@ -304,11 +298,9 @@ def disassemble_infos(args):
 
     for addr in rom.addresses():
         if addr not in its_addrs and addr not in data_addrs:
-            # TODO wrong
-            if args.threat_other_adresses_as_instructions:
+            if args.process_remaining_adresses_as_instructions:
                 its_addrs.append(addr)
-            # TODO wrong
-            elif args.threat_other_adresses_as_sprites:
+            elif args.process_remaining_adresses_as_sprites:
                 data_addrs.append(addr)
 
     disassembler = Disassembler(rom, labels_addrs=labels_addrs, data_addr=data_addrs, its_addr=its_addrs)
@@ -327,34 +319,31 @@ def disassemble_infos(args):
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Disassemble chip8 programms.")
-    parser.add_argument("--rom", type=argparse.FileType('rb'), required=True, help="Chip8 rom path to disassemble")
+    h = "Chip8 rom path to disassemble"
+    parser.add_argument("--rom", type=argparse.FileType('rb'), required=True, help=h)
 
     sp = parser.add_subparsers()
 
-    sp_disassemble_instructions = sp.add_parser("instructions")
+    h = "Disassemble Chip8 rom in two columns, the left for paired addresses instructions, " + \
+        "the right for impair addresses instructions"
+    sp_disassemble_instructions = sp.add_parser("instructions", help=h)
     sp_disassemble_instructions.set_defaults(func=disassemble_instructions)
 
-    sp_print_sprites = sp.add_parser("sprites")
+    h = "Disassemble the whole Chip8 rom as sprites"
+    sp_print_sprites = sp.add_parser("sprites", help=h)
     sp_print_sprites.set_defaults(func=disassemble_sprites)
 
-    # TODO (or not)
-    sp_print_sprites = sp.add_parser("disassemble-it-sprites")
-    # for i, byte in rom.memory
-    #   print left column it(byte, byte[i+1])
-    #   print right column sprite (byte)
-
-    sp_infos = sp.add_parser("infos")
+    h = "Disassemble using additional informations to get instructions/sprites addresses."
+    sp_infos = sp.add_parser("infos", help=h)
     sp_infos.add_argument("--its-addrs-path", type=argparse.FileType('r'))
     sp_infos.add_argument("--data-addrs-path", type=argparse.FileType('r'))
     sp_infos.add_argument("--labels-path", type=argparse.FileType('r'))
     sp_infos.add_argument("--comments-path", type=argparse.FileType('r'))
     sp_infos.set_defaults(func=disassemble_infos)
     group = sp_infos.add_mutually_exclusive_group()
-    group.add_argument("--threat-other-adresses-as-instructions", default=False, action="store_true")
-    group.add_argument("--threat-other-adresses-as-sprites", default=False, action="store_true")
+    group.add_argument("--process-remaining-adresses-as-instructions", default=False, action="store_true")
+    group.add_argument("--process-remaining-adresses-as-sprites", default=False, action="store_true")
 
-    # in: its_addr = []
-    # in: data_addr = []
     #
     # ITERATOR
     #
