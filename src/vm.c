@@ -46,9 +46,8 @@ static inline int clock_update(struct clock * clk, struct chip8 * chip)
     // next sleep
     timespec_add_ns(&clk->sleep_date, CPU_DELAY_NS);
 
-    // Sleep
-    int res = 0;
-    if((res=clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &clk->sleep_date, NULL)) != 0)
+    // sleep
+    if(clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &clk->sleep_date, NULL) != 0)
         THROW(error, 1, "clock_nanosleep");
 
     return 1;
