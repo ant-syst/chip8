@@ -60,7 +60,7 @@ int main(int argc, char ** argv)
     return EXIT_SUCCESS;
 
     parse_error:
-        printf("Usage: %s --rom <rom file> --io <curses|sdl>\n", argv[0]); // TODO
+        printf("Usage: %s --rom <rom file> --io <curses|sdl> [--use-debug]\n", argv[0]);
 
     error:
 
