@@ -3,11 +3,10 @@
 
 #include <SDL2/SDL.h>
 
-// TODO doublons
 #define TRY(FN)                     \
 do {                                \
     if((FN) != 0)                   \
-        THROW(sdl_error, 0, "");   \
+        THROW(sdl_error, 0, "");    \
 } while(0)
 
 struct display {
