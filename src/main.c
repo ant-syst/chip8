@@ -23,8 +23,7 @@ int main(int argc, char ** argv)
     if(!rom)
         goto parse_error;
 
-    io_name = parse_choices(argc, argv, "io", (char const*[]){"curses", "sdl", NULL}, "sdl");
-    if(!io_name)
+    if(!parse_choices(argc, argv, "--io", (char const*[]){"curses", "sdl", NULL}, "sdl", &io_name))
         goto parse_error;
 
     chip = chip8_alloc();

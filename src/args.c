@@ -28,15 +28,29 @@ char const * parse_str(int argc, char ** argv, char const *name, char const *def
     return def;
 }
 
-char const * parse_choices(int argc, char ** argv, char const *name, char const ** choices, char const *def)
+int parse_choices(int argc, char ** argv, char const *name, char const ** choices, char const *def, char const ** res)
 {
     int index = lookup_name_index(argc, argv, name);
-    if(index == -1 || index == argc-1)
-        return def;
+    if(index == -1)
+        goto not_found;
+
+    if(index == argc-1)
+        goto malformed;
 
     for(; *choices != NULL; choices++)
+    {
         if(strcmp(argv[index + 1], *choices) == 0)
-            return *choices;
+        {
+            *res = *choices;
+            return 1;
+        }
+    }
 
-    return def;
+    malformed:
+    return 0;
+
+    not_found:
+
+    *res = def;
+    return 1;
 }
