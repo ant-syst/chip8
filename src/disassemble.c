@@ -10,8 +10,8 @@
 
 #define I_00E0(IT)          log(IT, "clear screen")
 #define I_00EE(IT)          log(IT, "return from a subroutine")
-#define I_1NNN(IT, ADDR)    log(IT, "jump %#x", ADDR)
-#define I_2NNN(IT, ADDR)    log(IT, "call %#x", ADDR)
+#define I_1NNN(IT, NNN)     log(IT, "jump %#x", NNN)
+#define I_2NNN(IT, NNN)     log(IT, "call %#x", NNN)
 #define I_3XKK(IT, X, KK)   log(IT, "skip if v%X == %d", X, KK)
 #define I_4XKK(IT, X, KK)   log(IT, "skip if v%X != %d", X, KK)
 #define I_5XY0(IT, X, Y)    log(IT, "skip if v%X == v%X", X, Y)
