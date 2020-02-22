@@ -5,7 +5,8 @@ SRCS := $(wildcard src/*.c)
 OBJS := $(patsubst src/%.c, obj/%.o, ${SRCS})
 DEPS := $(wildcard obj/*.d)
 
-all:  bin/main.elf bin/chip8_test.elf bin/sdl_io_test.elf bin/console_io_test.elf bin/disassemble.elf bin/debugger_test.elf bin/jso_test.elf
+all:  bin/main.elf bin/chip8_test.elf bin/sdl_io_test.elf bin/console_io_test.elf \
+	bin/disassemble.elf bin/disassemble.so bin/debugger_test.elf bin/jso_test.elf
 
 obj/%.o: src/%.c
 	$(CC) $(CFLAGS) -Ilib -o $@ -c $<
@@ -21,6 +22,9 @@ bin/sdl_io_test.elf: obj/chip8.o obj/sdl_io.o obj/mapping.o obj/sdl_io_test.o
 
 bin/console_io_test.elf: obj/chip8.o obj/mapping.o obj/console_io.o obj/console_io_test.o
 	$(CC) $^ -lncursesw -o $@
+
+bin/disassemble.so: obj/disassemble.o
+	$(CC) -shared -Wl,-soname,disassemble -o $@ -fPIC $^
 
 bin/disassemble.elf: obj/disassemble.o obj/disassembler.o
 	$(CC) $^ -o $@
