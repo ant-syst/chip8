@@ -5,6 +5,8 @@ import argparse
 import subprocess
 import re
 import itertools
+import ctypes
+import os
 
 from termcolor import colored
 from itertools import tee
@@ -140,9 +142,22 @@ class Comment:
     def __len__(self):
         return len(self.text)
 
+class InstructionDisassembler:
+
+    def __init__(self):
+        path = os.path.dirname(os.path.abspath(__file__))
+        path += "/../bin/disassemble.so"
+        self.lib = ctypes.cdll.LoadLibrary(path)
+
+    def disassemble(self, it):
+        buff = ctypes.create_string_buffer(50)
+        res = self.lib.disassemble(it, buff)
+        return buff.value.decode("ascii")
+
 class Instruction:
 
     cc = ColoredColor()
+    it_disassembler = InstructionDisassembler()
 
     def __init__(self, addr1, byte1, addr2, byte2, is_label):
         self.addr1 = addr1
@@ -155,7 +170,7 @@ class Instruction:
 
         it = self.little_endian_it()
 
-        self.decoded_it = subprocess.check_output(["./bin/disassemble.elf", "%x" % it]).decode().rstrip()
+        self.decoded_it = Instruction.it_disassembler.disassemble(it)
 
     @property
     def addr(self):
