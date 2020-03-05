@@ -12,7 +12,7 @@ obj/%.o: src/%.c
 	$(CC) $(CFLAGS) -Ilib -o $@ -c $<
 
 bin/main.elf: obj/chip8.o obj/main.o obj/vm.o obj/sdl_io.o obj/args.o obj/debugger.o obj/disassemble.o obj/jso.o obj/debugger.o lib/cJSON/cJSON.c obj/console_io.o obj/mapping.o
-	$(CC) $^ -lSDL2 -lrt -lncursesw -ltinfo -Ilib/ -o $@
+	$(CC) $^ -lSDL2 -lrt -lncursesw -Ilib/ -o $@
 
 bin/chip8_test.elf: obj/chip8_test.o
 	$(CC) $^ -lSDL2 -lrt -o $@
