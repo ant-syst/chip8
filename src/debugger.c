@@ -18,7 +18,7 @@
 
 #define DEBUG_DISABLED ((void*)1)
 
-#define DBG_SOCK_PATH "/var/run/chip8.sock"
+#define DBG_SOCK_PATH "/var/run/chip8/dbg.sock"
 #define MSG_LEN 1024
 
 #define BKPTS_LEN (MEM_SIZE-MEM_START)
