@@ -18,7 +18,19 @@ def pairwise(iterable):
     next(b, None)
     return zip(a, b)
 
-class ColoredColor:
+class BlanckCode:
+
+    def code(self, code):
+        return code
+
+    def addr(self, addr):
+        return addr
+
+    def it(self, it):
+        return it
+
+
+class ColoredCode:
 
     class RegexTokenColor:
 
@@ -54,7 +66,7 @@ class ColoredColor:
 
         return None
 
-    def colored_code(self, code):
+    def code(self, code):
 
         colored_code = ""
         has_comment = False
@@ -76,6 +88,14 @@ class ColoredColor:
 
         return colored_code.rstrip()
 
+    def addr(self, addr):
+        return colored(addr, "red", attrs=["bold"])
+
+    def it(self, it):
+        return colored("%#6x" % it, "blue", attrs=["bold"])
+
+cc = ColoredCode()
+
 class Column:
 
     def __init__(self):
@@ -87,6 +107,7 @@ class Column:
     @property
     def max_len(self):
         return max([len(line) for line in self.lines])
+
 
 class MultiColumns:
 
@@ -106,6 +127,7 @@ class MultiColumns:
                 print((self.columns[i].max_len - len(cell)) * " ", end="")
                 print(self.sep, end="")
             print()
+
 
 class Sprite:
 
@@ -128,16 +150,15 @@ class Sprite:
     def __len__(self):
         return len(self.__str__())
 
-class Comment:
 
-    cc = ColoredColor()
+class Comment:
 
     def __init__(self, addr, text):
         self.addr = addr
         self.text = text
 
     def __str__(self):
-        return Comment.cc.colored_code(self.text)
+        return cc.code(self.text)
 
     def __len__(self):
         return len(self.text)
@@ -156,7 +177,6 @@ class InstructionDisassembler:
 
 class Instruction:
 
-    cc = ColoredColor()
     it_disassembler = InstructionDisassembler()
 
     def __init__(self, addr1, byte1, addr2, byte2, is_label):
@@ -183,10 +203,10 @@ class Instruction:
 
         addr = "%#4x" % self.addr1
         if self.is_label:
-            addr = colored(addr, "red", attrs=["bold"])
+            addr = cc.addr(addr)
 
-        hexa = colored("%#6x" % self.little_endian_it(), "blue", attrs=["bold"])
-        code = Instruction.cc.colored_code(self.decoded_it)
+        hexa = cc.it(self.little_endian_it())
+        code = cc.code(self.decoded_it)
         return "%s: %s %s" % (addr, hexa, code)
 
     def __len__(self):
@@ -337,6 +357,9 @@ if __name__ == "__main__":
     h = "Chip8 rom path to disassemble"
     parser.add_argument("--rom", type=argparse.FileType('rb'), required=True, help=h)
 
+    h = "Disable code coloration"
+    parser.add_argument("--disable-colors", dest="disable_coloration", action="store_true", default=False, help=h)
+
     sp = parser.add_subparsers()
 
     h = "Disassemble Chip8 rom in two columns, the left for paired addresses instructions, " + \
@@ -379,6 +402,10 @@ if __name__ == "__main__":
     #
 
     args = parser.parse_args()
+
+    if args.disable_coloration:
+        cc = BlanckCode()
+
     if hasattr(args, "func"):
         args.func(args)
     else:
