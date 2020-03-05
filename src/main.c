@@ -17,6 +17,9 @@ int main(int argc, char ** argv)
     int pix_size = 10;
     int enable_debug;
 
+    if(parse_name(argc, argv, "--help") != 0)
+        goto parse_error;
+
     enable_debug = parse_name(argc, argv, "--use-debug");
 
     rom = parse_str(argc, argv, "--rom", NULL);
@@ -60,7 +63,16 @@ int main(int argc, char ** argv)
     return EXIT_SUCCESS;
 
     parse_error:
-        printf("Usage: %s --rom <rom file> --io <curses|sdl> [--use-debug]\n", argv[0]);
+        printf(
+            "Usage: %s --help | --rom <rom file> --io <curses|sdl> "
+            "[--use-debug]\n"
+            "arguments:\n"
+                "--rom             The rom path that must be loaded\n"
+                "--io <curses|sdl> The user interface (SDL or ncurses in terminal)\n"
+                "[--use-debug]     Run the emulator in debug mode waiting a \n"
+                "                  debugger connection\n",
+            argv[0]
+        );
 
     error:
 
