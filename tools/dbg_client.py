@@ -65,8 +65,8 @@ class DisassembleCommand(Command):
         it = infos["value"]["it"]
         addr1 = infos["value"]["pc"]
         addr2 = addr1 + 1
-        byte1 = it & 0xFF
-        byte2 = it >> 8 & 0xFF
+        byte1 = it >> 8 & 0xFF
+        byte2 = it & 0xFF
         print(Instruction(addr1, byte1, addr2, byte2, False))
 
 class NextCommand(Command):
