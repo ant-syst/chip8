@@ -20,6 +20,7 @@ struct clock {
 };
 
 struct vm {
+    FILE * its_logger;
     struct io * io;
     struct chip8 * chip;
     struct clock clk;
@@ -59,16 +60,24 @@ static inline int clock_update(struct clock * clk, struct chip8 * chip)
 
 void vm_free(struct vm ** vm)
 {
-    if(*vm)
+    if(*vm) {
+        fclose((*vm)->its_logger);
         free(*vm);
+    }
     *vm = NULL;
 }
 
-struct vm * vm_alloc(void)
+struct vm * vm_alloc(char const * its_logger_path)
 {
     struct vm * vm = calloc(1, sizeof(struct vm));
     if(!vm)
         THROW(error, 1, "calloc");
+
+    if(its_logger_path) {
+        vm ->its_logger = fopen(its_logger_path, "w");
+        if(!vm ->its_logger)
+            THROW(error, 1, "fopen");
+    }
 
     return vm;
 
@@ -87,6 +96,9 @@ int vm_run(struct vm * vm, struct chip8 * chip, struct io * io, struct debugger 
     while(1)
     {
         uint16_t it = chip8_decode_it(chip);
+
+        if(vm->its_logger)
+            fprintf(vm->its_logger, "%#x\n", (unsigned int)chip->cpu.pc);
 
         dbg_call(dbg);
 

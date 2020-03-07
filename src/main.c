@@ -13,7 +13,7 @@ int main(int argc, char ** argv)
     struct io * io = NULL;
     struct chip8 * chip = NULL;
     struct vm * vm = NULL;
-    char const * rom = NULL, * io_name = NULL;
+    char const * rom = NULL, * io_name = NULL, * its_logger_path = NULL;
     int pix_size = 10;
     int enable_debug;
 
@@ -28,6 +28,8 @@ int main(int argc, char ** argv)
 
     if(!parse_choices(argc, argv, "--io", (char const*[]){"curses", "sdl", NULL}, "sdl", &io_name))
         goto parse_error;
+
+    its_logger_path = parse_str(argc, argv, "--instructions-logger-path", NULL);
 
     chip = chip8_alloc();
     if(!chip)
@@ -48,7 +50,7 @@ int main(int argc, char ** argv)
     if(!chip8_load_rom(chip, rom))
         THROW(error, 0, "chip8_load_rom");
 
-    vm = vm_alloc();
+    vm = vm_alloc(its_logger_path);
     if(!vm)
         THROW(error, 0, "vm_alloc");
 
@@ -64,13 +66,15 @@ int main(int argc, char ** argv)
 
     parse_error:
         printf(
-            "Usage: %s --help | --rom <rom file> --io <curses|sdl> "
-            "[--use-debug]\n"
+            "Usage: %s --help | --rom <rom file> --io <curses|sdl> [--use-debug]"
+            "[--instructions-logger-path]\n"
             "arguments:\n"
                 "--rom             The rom path that must be loaded\n"
                 "--io <curses|sdl> The user interface (SDL or ncurses in terminal)\n"
                 "[--use-debug]     Run the emulator in debug mode waiting a \n"
-                "                  debugger connection\n",
+                "                  debugger connection\n"
+                "[--instructions-logger-path] An optional path to a file used "
+                "to log the address of all instruction executed\n",
             argv[0]
         );
 

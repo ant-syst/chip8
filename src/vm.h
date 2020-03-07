@@ -8,7 +8,7 @@ struct vm;
 
 void vm_free(struct vm ** vm);
 
-struct vm * vm_alloc(void);
+struct vm * vm_alloc(char const * its_logger_path);
 
 int vm_run(struct vm * vm, struct chip8 * chip, struct io * io, struct debugger * dbg);
 
